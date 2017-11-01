@@ -1,0 +1,28 @@
+\chapter{Conclusion}
+
+Le bilan de ce projet est globalement positif. Nous pensons avoir réussi, de manière efficace, à mettre en place 
+un pong en réseau, le tout en lui ajoutant de nombreux élèments facultatifs, tels que la mise en place du menu, 
+le mode solo ou les balles bonus.
+\\
+Cependant, lors de la création de celui-ci, nous avions eu de nombreuses idées d'implémentations supplémentaires qui n'ont 
+pas été ajoutées, faute de temps et par volonté de se concentrer sur des aspects plus fondamentaux.
+Parmi ces fonctionnalités, il y a la possibilité de jouer à quatre joueurs 
+simultanément. Il aurait donc fallu modifier notre réseau pour que toutes les machines se connectent entre elles 
+et soient à la fois serveur et client. Dès lors qu'une machine se connecterait à une autre, celle-ci lui enverrait 
+les noms des 
+autres machines auxquelles il faudrait se connecter. On aurait donc pu gérer la balle non plus sur deux machines, 
+mais sur quatre, 
+
+et il aurait fallu modifier le code du jeu en rajoutant deux raquettes, en haut et en bas, avec un score différent pour
+chacun. Nous aurions aussi aimé pouvoir griser les menus lorsque ceux-ci sont inutiles, par exemple, lorsque l'on est 
+serveur, l'option demandant l'adresse ip est inutile, nous aurions donc voulu que le menu soit dynamique et change
+dès que l'on 
+choisit une option. Cependant, nous avons évidemment adapté l'implémentation, de façon à ce que, si un joueur étant serveur
+tape une adresse IP ou que le client souhaite déterminer le score à atteindre lui-même, ces valeurs ne soient pas prises 
+en compte. Enfin, d'autres idées de bonus nous ont plu et seront probablement implémentées à l'issue de ce projet, comme 
+le fait de jouer avec plusieurs balles, obtenir une raquette aimantée bloquant la balle quelques secondes, un malus 
+inversant les touches, un bonus offrant une possibilité de mouvement selon l'axe x temporairement etc..
+\\
+Enfin, nous ne garantissons pas aux joueurs une protection face à tout type de triche, et ce malgré notre algorithme, 
+même s'il paraît bien sûr impossible de faire cela. Nous pensons malgré tout que celui-ci peut-être 
+améliorable, bien que nous considérons néanmoins qu'il offre au joueur une garantie correcte au vu de l'ampleur du projet.

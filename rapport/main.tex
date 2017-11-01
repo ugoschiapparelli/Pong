@@ -1,0 +1,37 @@
+\documentclass{report}
+\usepackage{ucs}
+\usepackage[utf8x]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{graphicx}
+\usepackage{verbatim} %Pour insérer du code dans le document
+\usepackage{listings}
+\usepackage{color}
+\usepackage{titling}
+\usepackage{mwe}
+\usepackage{amsmath,amsfonts}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage[export]{adjustbox}
+\usepackage[final]{pdfpages}
+
+\include{java_latex}
+
+\begin{document}
+
+\include{presentation}
+\hypersetup{hidelinks}
+
+\tableofcontents
+
+\include{intro}
+\include{fonctionnalites}
+\include{travail}
+\include{diagramme}
+\include{conclusion}
+\include{bibliographie}
+
+\chapter{Annexes et code du projet}
+Cette annexe aura pour objectif de présenter l'ensemble des documents liés au projet, à commencer par le sujet.
+
+\end{document}

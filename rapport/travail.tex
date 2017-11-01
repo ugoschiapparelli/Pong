@@ -1,0 +1,155 @@
+\chapter{Valorisation du travail réalisé}
+
+Ici, nous allons mettre en valeur notre code en explicitant les différents algortihmes utilisés et notre réflexion 
+ayant mené à ce projet final. Pour cela, nous allons notamment voir l'exemple d'un bug que l'on a eu, la façon 
+dont on l'a résolu, ainsi que les optimisations ayant permis d'éviter au maximum les redondances dans le code.
+
+\section{Prise en main sur une seule machine}
+La première étape du projet a consisté à créer un pong basique sans le réseau. Nous ne sommes
+pas parti de rien, le sujet étant 
+donné avec du code. Nous avons pu apprendre à nous servir de swing,
+l'API de java pour faire une interface,
+et commencer la première partie qui a consisté à créer un pong multijoueur, jouable sur une seule machine.
+Notre première décision fut de changer l'aspect graphique du jeu, se rapprochant plus du pong originel.
+\\
+Nous avons repris l'implémentation donnée dans le code de base et le sujet, une 
+classe pong qui gère tout le jeu, 
+une classe Window qui affiche le rendu et par laquelle l'appel au réseau, contenu dans 
+une classe à part, se fera plus tard. Une fonction Main 
+lance le jeu et décide ce que feront
+le serveur et le client. Enfin, il y a deux classes, Racket et Ball, héritant toutes deux de PongItem, interface 
+contenant 3 paramètres 
+communs aux 2 objets, ``width'', ``height'' et ``position''.
+\\
+Le premier problème fut de gérer la collision et le rebond de la balle sur les raquettes. 
+Pour cela, nous avons utilisé un algorithme prenant le problème de revers, 
+c'est-à-dire que nous avons cherché à savoir si la balle n'était pas sur la 
+raquette. En pensant différement, nous avons donc pu contourner le problème.
+Le second, le problème lié au rebond, était du à la diférenciation de l'axe x ou l'axe y sur 
+lesquels la balle devait rebondir. Avec notre nouveau mode de pensée utilisé et appliqué sur 
+le rebond, nous avons pu résoudre ce problème aussi.
+Plus tard, dans le projet, nous avons de nouveau modifié le rebond pour avoir quelque chose 
+de plus complexe, nous avons coupé la 
+raquette en cinq et, selon la partie sur laquelle la balle rebondit, l'orientation de ce dernier et la vitesse 
+sera différente.
+
+
+\section{Passage en réseau}
+Une fois le mode de jeu multijoueur mis en place de façon locale, il aura fallu mettre en place le réseau. 
+Pour cela, comme expliqué précédement, une classe Réseau a été créée, contenant 2 fonctions, send et read. 
+L'envoi et la réception de données et le système d'ack ayant déjà été détaillé, nous allons ici nous concentrer sur le 
+mode d'envoi de données choisi, la raison de la multiplicité des fonctions read et send ainsi que celle de l'unicité 
+de la fonction ack.
+\\
+Après la rédaction de plusieurs fonctions send et read, afin d'envoyer et recevoir les données de la racket, de la balle 
+et du score max à établir, nous avons réussi à factoriser le tout en obtenant 4 fonctions. Ainsi, les fonctions ``read'' et 
+``send'' sont là pour envoyer des coordonnées. Il peut s'agir des coordonnées de position de la racket, de position de la balle 
+ou de vitesse de celle-ci. Voici les prototypes de ces 2 fonctions:
+\begin{itemize}
+ \item \textit{public void send(Socket sock, Point point, String coor)}
+ \item \textit{public void read(Socket sock)}
+\end{itemize}
+
+Les 2 fonctions prennent ainsi nécessairement la socket pour l'envoi/réception des données. La fonction ``send'', quant à 
+elle, prend la variable ``point`` ainsi que le String ''coor`` déterminant l'origine du point ainsi que la 
+coordonnée de celui-ci à envoyer.
+\\
+Les 2 autres fonctions send/read sont les suivantes:
+\begin{itemize}
+ \item public void sendMaxScore(Socket sock, int scoreMax)
+ \item public void readMaxScore(Socket sock)
+\end{itemize}
+
+Celles-ci sont appelées une seule fois au début de la partie, contrairement aux 2 précédentes, mais fonctionnent sur le même 
+principe, seul le type de donnée diffère. Ici, il s'agit d'un int. Une fonction readMaxScore spécifique a donc été créée afin 
+de réceptionner la valeur correctement.
+\\
+La fonction ack, intégrée dans un do while, comme expliqué précédemment, est générique et s'applique à absoluement tout type 
+de donnée, à condition qu'il respecte ces différentes conditions. Tout d'abord, lors du read, la dernière étape 
+doit être l'envoi d'une chaîne de caractère unique servant à identifier le type de donnée qui a été réceptionné. Ensuite, 
+cette chaîne de caractère doit être passée en paramètre à la fonction ''ack`` qui la comparera avec celle reçue et renverra 
+''True`` si se sont les mêmes, ''False`` sinon, entraînant l'envoi de l'information à nouveau. Voici le prototype de 
+cette fonction:
+
+\begin{itemize}
+ \item public boolean ack(Socket sock, String message)
+\end{itemize}
+
+Cette fonction récupère ainsi les informations via la socket et compare la chaîne de caractères obtenue avec la chaîne 
+''message`` passée en paramètre.
+
+\section{Extension}
+
+\subsection{Eviter la triche}
+Pour éviter la triche, nous avons repris l'algorithme et les explications données dans le sujet. 
+On calcule ainsi la position attendue par la balle à l'aide de sa vitesse, puis on 
+la compare avec celle reçue. Si ce sont les mêmes, il n'y a pas de triche.
+On ajoute l'appel à cet algorithme après les boucles traitant la réception des données.
+\\
+Plus tard, nous avons ajouté des balles bonus qui augmentent ou diminuent la vitesse. 
+Il fallait un signal pour avertir que les raquettes
+étaient affectées par les bonus. Grâce à notre implémentation, nous avons un paramètre de type int dans 
+la structure racket indiquant si une 
+raquette est touchée par un bonus. Il suffit donc de vérifier si cet int était à la bonne valeur pour les deux raquettes.
+
+\subsection{Les balles spéciales et bonus}
+La seconde extension que nous avons ajouté fût les bonus. Nous avons commencé par un bonus agrandissant 
+la raquette courante du joueur, en prenant en compte le fait qu'il faut gérer une collision différente. 
+Il faut donc se servir 
+de notre fonction implementée pour les collisions avec en argument
+ball et racket. Les bonus étant tous des types de Ball particuliers, ils héritent tous de cette classe. 
+\\
+Ne voulant pas surcharger le réseau de données, nous avons décidé que chaque jeu gèrera lui-même tous 
+les bonus et qu'ils apparaitraient
+donc au bout d'un certain nombre de points marqués par les deux joueurs. Ainsi, on garantit 
+la synchronisation, le bonus arrivant sur la raquette 
+ayant marqué le dernier
+point.
+\\
+Nous avons créé plusieurs données membres pour une classe nomée BallBonusLarger. Tou d'abord, un booléen qui nous 
+permet de savoir si le bonus a été créé, qui sert afin de ne pas écrire de données sur des bonus non 
+instanciés, grâce à un if.
+Puis, un tableau de 2 int, qui correspond au score courant de la partie lors de la création du bonus. Cette donnée 
+nous sert à ne pas créer de nouveaux bonus lorsqu'un est déjà instanciée et que le score contenu dans le tableau 
+correspond au score où celui-ci a été créé. Cela évite que les bonus apparaissent sans cesse tant que le score n'est pas 
+modifié. 
+Enfin, un entier qui définit la position Y du bonus, qui correpondra à la hauteur de la dernière balle perdue.
+\\
+Après cela, nous avons crée de nouveaux bonus. L'un d'entre eux réduit la raquette du joueur qui l'obtient, tandis que 
+les autres augmentent sa vitesse ou au contraire, la réduise. 
+Pour ce faire, nous avons créé une classe, située au-dessus dans la hiérarchie, nommée 
+BallBonus, héritant de Ball. Ainsi, toutes les classes des 
+différents bonus héritent de BallBonus. 
+Puis, nous avons mis dans cette classe ce que nous avions précédement fait dans 
+BallBonusLarger avec un 
+constructeur permettant de choisir l'image du bonus. Enfin, nous avons crée des fonctions utilisées lors 
+de la création et l'affichage,
+utilisant des données membres pouvant être changée par le constructeur, nous permettant de gérer différents paramètres aisément, 
+comme le nombre de points à marquer avant que le bonus apparaisse, l'effet que le bonus aura sur la raquette et le sens 
+dans lequel il ira. Il se déplacera ainsi sur celui qui a marqué le dernier point s'il s'agit d'un bonus 
+considéré comme positif, ou l'adversaire s'il s'agit d'un malus.
+
+\subsection{Menu}
+En dernière partie, nous avons décidé d'ajouter un menu qui nous faciliterait, autant à nous, programmeurs, qu'à 
+l'utilisateur, 
+le lancement d'une partie de pong. Après des recherches pour comprendre la façon dont swing gére les menus, nous 
+avons donc créé
+une 
+classe Menu.
+Pour intégrer les données postées par l'utilisateur dans le menu au reste du code, nous 
+avons créé des données membres, dans la classe Main, 
+accessibles par
+toutes les classes permettant de gérer les différentes options du menu. 
+Nous avons aussi créé un thread, que nous avons utilisé 
+dans le Main, pour attendre que l'utilisateur lance le jeu avant de commencer à lancer le réseau, puisqu'il nous 
+fallait les réponses de celui-ci.
+Une des options du menu en début de partie est le score max que doit atteindre un joueur pour gagner une partie, et donc il 
+fallait aussi gérer les joueurs qui ne mettraient pas la même valeur, alors qu'ils jouent ensemble. Pour contourner 
+ce problème, 
+nous avons décidé que ce serait le serveur qui choisirait le score max et qui l'enverrait en début de partie au client.
+Enfin, nous avons créé une boîte de dialogue pour la fin d'une partie, lancée lorsqu'un joueur atteint le score maximum et 
+proposant deux options: une permettant de rejouer, l'autre de fermer la fenêtre du jeu. La seule chose 
+à réinitialiser pour une nouvelle partie
+fût le score, et pour la fermeture de la fenêtre, on envoie un entier qui nous permet de sortir 
+de la boucle while de Window, 
+là où toute la partie affichage se fait.

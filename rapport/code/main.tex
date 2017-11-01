@@ -1,0 +1,130 @@
+\section{Main}
+\begin{lstlisting}[language=Java]
+package pong;
+
+import java.net.*;
+import java.awt.Point;
+import java.io.*;
+
+import pong.gui.Ball;
+import pong.gui.Menu;
+import pong.gui.Window;
+import pong.gui.Pong;
+import pong.gui.Tests;
+
+/**
+ * Starting point of the Pong application
+ */
+
+public class Main {
+	
+	public static Point ballPosition, ballSpeed;
+	public static Point currentRacket, otherRacket;
+	private static int indice = 0, indiceSC = -1, nbPlayer, scoreMax = 15;
+	private static String serverName;
+	
+	public static void main(String[] args) throws IOException {
+		//Test
+		if(args.length == 1){
+			if(args[0].equals("test")){
+				Tests test = new Tests();
+				//-1 = erreur
+				if(test.TestsCollision() == -1)
+					return;
+				if(test.TestsRebound() == -1)
+					return;
+
+				System.out.println("Les tests ont ete passes avec succes");
+				return;
+			}
+		}
+		else{
+			Menu menu = new Menu();
+			MyThread thread = new MyThread(); 
+			thread.start();
+			while(thread.isAlive()){}
+			
+			//Parametres de base pour la balle
+			ballPosition = new Point(500, 300); 
+			ballSpeed = new Point(Ball.BALL_SPEED, Ball.BALL_SPEED);
+			
+			//Mode multijoueur
+			if (getNbPlayer() == 2){
+				//Serveur
+				if (getIndiceSC() == 0) {
+					ServerSocket secoute = new ServerSocket(7777);
+					currentRacket = new Point(50, 0);
+					otherRacket = new Point(930, 0);
+					Socket client = secoute.accept();
+					client.setTcpNoDelay(true);
+					Pong pong = new Pong(1, 2); 
+					Window window = new Window(pong);
+					window.displayOnscreen(client);
+					secoute.close();
+				}
+				//Client
+				else if (getIndiceSC() == 1){
+					currentRacket = new Point(930, 0);
+					otherRacket = new Point(50, 0);
+					Socket s = new Socket(getServerName(), 7777);
+					s.setTcpNoDelay(true);
+					if (s.isConnected()) {
+						Pong pong = new Pong(2, 1);
+						Window window = new Window(pong);
+						window.displayOnscreen(s);
+					}
+					s.close();
+				}
+			}
+			//Mode solo
+			else if (getNbPlayer() == 1){
+				Pong pong = new Pong(1, 0);
+				Window window = new Window(pong);
+				window.displayOnscreen();
+			}
+		}
+	}
+	
+	//Getters/Setters
+	public static int getIndice() {
+		return indice;
+	}
+
+	public static void setIndice(int indice) {
+		Main.indice = indice;
+	}
+
+	public static int getIndiceSC() {
+		return indiceSC;
+	}
+
+	public static void setIndiceSC(int indiceSC) {
+		Main.indiceSC = indiceSC;
+	}
+
+	public static int getNbPlayer() {
+		return nbPlayer;
+	}
+
+	public static void setNbPlayer(int nbPlayer) {
+		Main.nbPlayer = nbPlayer;
+	}
+
+	public static String getServerName() {
+		return serverName;
+	}
+
+	public static void setServerName(String serverName) {
+		Main.serverName = serverName;
+	}
+
+	public static int getScoreMax() {
+		return scoreMax;
+	}
+
+	public static void setScoreMax(int scoreMax) {
+		Main.scoreMax = scoreMax;
+	}
+}
+
+\end{lstlisting}

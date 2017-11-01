@@ -1,0 +1,4 @@
+Utilisation du Makefile:
+"make" compile le projet
+"make run" lance le jeu
+"make clean" fait tous les "make clean" correspondant aux Makefile des sous-répertoires 
